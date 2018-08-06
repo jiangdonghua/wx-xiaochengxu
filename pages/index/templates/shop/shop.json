@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "star-rate":"../../../components/star-rate/star-rate"
+  }
+}

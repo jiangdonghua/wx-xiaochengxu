@@ -1,0 +1,43 @@
+<import src="./templates/shop/shop.wxml"/>
+<import src="./templates/load-more/load-more.wxml"/>
+<!--index.wxml-->
+<view class="root">
+    <view class='topBar'>
+        <navigator url="../address/address?callback=callback"  class='address trangle'>
+            <image class="address__icon" src="/images/location.png"/>
+            {{currentAddress?currentAddress.title:'定位中...'}}
+        </navigator>
+        <navigator url="/pages/search/search" class='search'>
+            <icon type="search" size="16" class="search-icon"/>搜索
+        </navigator>
+    </view>
+    <view class="category">
+        <navigator class="category__item"
+                   url="/pages/index/templates/category/category?id={{item.category_id}}"
+                   wx:for="{{category}}"
+                   wx:key="category_id">
+            <view>
+                <image src="{{item.icon}}" class="category__icon">
+                </image>
+            </view>
+            {{item.title}}
+        </navigator>
+    </view>
+<view class="weui-panel weui-panel_access">
+    <view class="weui-panel__bd shop__list">
+        <template is="shop" wx:for="{{shopList}}" wx:key="{{seller_id}}" data="{{...item}}"/>
+    </view>
+</view>
+<template is="load-more" data="{{loading:loading,hasMore:hasMore,noMoreLabel:'更多商家接入中, 敬请期待'}}">
+
+</template>
+    <popup id='popup'
+           title='小组件'
+           content='学会了吗'
+           btn_no='没有'
+           btn_ok='学会了'
+           bind:error="_error"
+           bind:success="_success">
+    </popup>
+</view>
+

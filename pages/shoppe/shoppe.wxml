@@ -1,0 +1,286 @@
+<!--pages/shoppe/shoppe.wxml-->
+<import src="templates/sub-goods.wxml"/>
+<import src="templates/goods-actions.wxml"/>
+<import src="templates/cart-box.wxml"/>
+
+<view class="shop-show">
+<view class="shop-info weui-panel weui-panel_access">
+    <view class="weui-panel__bd">
+        <view class="weui-media-box weui-media-box_appmsg">
+            <view class="weui-media-box__hd weui-media-box__hd_in-appmsg">
+                <image class="weui-media-box__thumb shop-info__pic"
+                       src="{{info.pic_url}}"/>
+            </view>
+            <view class="weui-media-box__bd weui-media-box__bd_in-appmsg">
+                <view class="weui-media-box__title">{{info.seller_name}}</view>
+                <view class="weui-media-box__desc shop-info__desc">
+                    <view>
+                        {{info.min_price}}元起送 | {{info.reach_time}}分钟 | 距离{{info.distanceFormat}}km
+                    </view>
+                    <view wx:if="{{info.notice}}">
+                        公告: {{info.notice}}
+                    </view>
+                </view>
+            </view>
+        </view>
+        <!--超级恶心的view分割线-->
+        <view wx:if="{{info.promotion && info.promotion.length > 0}}" class="promotion">
+            <swiper class="promotion-swiper" vertical="true" autoplay="true" interval="5000">
+                <swiper-item wx:key="index" wx:for="{{info.promotion}}" class="promotion-item">
+                    <image class="promotion-item__icon" src="{{item.pic_url}}"/>
+                    <text>{{item.info}}</text>
+                </swiper-item>
+            </swiper>
+            <view class="promotion-total">
+                {{info.promotion.length}}个活动
+            </view>
+        </view>
+    </view>
+</view>
+<view class="shop-content">
+    <view class="weui-tab weui-tab_shop">
+        <view class="weui-navbar">
+            <block wx:for="{{tabs}}" wx:key="*this">
+                <view id="{{index}}" class="weui-navbar__item {{activeIndex == index ? 'weui-bar__item_on' : ''}}"
+                      bindtap="tabClick">
+                    <view class="weui-navbar__title">{{item}}</view>
+                </view>
+            </block>
+            <view class="weui-navbar__slider"
+                  style="left: {{sliderLeft}}px; transform: translateX({{sliderOffset}}px); -webkit-transform: translateX({{sliderOffset}}px);">
+            </view>
+        </view>
+        <!--分割线-->
+        <swiper autoplay="{{false}}"
+                bindChange="swiperChange"
+                current="{{activeIndex}}"
+                class="weui-tab__panel"
+        >
+            <swiper-item class="weui-tab__content menu-tab">
+                <view class="menu-content weui-flex">
+                    <view class="menu-list">
+                        <view bindtap="menuClick" id="{{index}}"
+                              class="menu-item {{index == activeMenuIndex ? 'menu-item_active' : ''}} "
+                              wx:for="{{info.menus}}" wx:key="menu_id">
+                            {{item.menu_name}}
+                        </view>
+                    </view>
+                    <!--分割线-->
+                    <view wx:if="{{info.menus&&info.menus[activeMenuIndex]}}" class="goods-list weui-flex__item">
+                        <view class="goods-list__label">
+                            {{info.menus[activeMenuIndex].menu_name}}
+                        </view>
+                        <!-- -&#45;&#45;-->
+                        <view wx:for="{{info.menus[activeMenuIndex].goods2}}" wx:key="{{item.goods_id.goods_id}}"
+                              class="goods-item weui-flex">
+                            <image src="{{item.pic_url}}" class="goods-item__pic"/>
+                            <view class="weui-flex__item">
+                                <view class="goods-item__name">{{item.goods_name}}</view>
+                                <view class="goods-item__desc text-small grey-color">月售{{item.sales}}份</view>
+                                <view class="goods-item__price primary-color">¥{{item.price}}</view>
+                                <view class="goods-item__actions">
+
+                                    <view class="goods-item__sub-goods" data-goods-id="{{item.goods_id}}"
+                                          bindtap="showSubGoods"
+                                          wx:if="{{item.sub_goods&&item.sub_goods.length>0}}">
+                                        选规格
+                                        <view wx:if="{{order['goodsNums'][item.goods_id] > 0}}"
+                                              class="weui-badge goods-item__sub-goods-badge">
+                                            {{order['goodsNums'][item.goods_id]}}
+                                        </view>
+
+                                    </view>
+                                    <template is="goods-actions"
+                                              data="{{goods_id: item.goods_id, num: order['goodsNums'][item.goods_id]}}"
+                                              wx:else/>
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+                <view class="menu-cart weui-flex">
+                    <view bindtap="toggleCart" class="weui-flex__item menu-cart__content weui-flex">
+                        <view wx:if="{{!showCart}}" class="menu-cart__badge-wrap">
+                            <image class="menu-cart__icon"
+                                   src="{{order.totalNum > 0 ? '/images/cart-full@2x.png': '/images/cart-empty@2x.png'}}"/>
+                            <view wx:if="{{order.totalNum > 0}}" class="weui-badge menu-cart__badge">{{order.totalNum}}
+                            </view>
+                        </view>
+                        <view class="weui-flex__item menu-cart__price-wrap">
+                            <view class="menu-cart__price" wx:if="{{order.totalPrice > 0}}">¥{{order.totalPrice}}</view>
+                            <view class="text-small grey-color">另需配送费{{info.delivery_fee}}元</view>
+                        </view>
+                    </view>
+                    <button disabled="{{loading}}" loading="{{loading}}" wx:if="{{order.totalPrice >= info.min_price}}"
+                            bindtap="onAddQuasiOrder" class="weui-btn menu-cart__btn" type="primary">
+                        选好了
+                    </button>
+                    <button wx:else class="weui-btn menu-cart__btn" type="primary" disabled>
+                        <text wx:if="{{order.totalPrice > 0}}">还差{{info.min_price - order.totalPrice}}元起送</text>
+                        <text wx:else>{{info.min_price}}元起送</text>
+                    </button>
+                </view>
+            </swiper-item>
+            <swiper-item class="weui-tab__content weui-tab__content_review">
+                <scroll-view class="scroll-view_review" enable-back-to-top="true" bindscrolltolower="onScrolltolower"
+                             scroll-y="true">
+                    <view class="shop-rate">
+                        <view class="shop-rate__overall">
+                            <view class="shop-rate__overall-num">{{info.overall}}</view>
+                            <view class="classname">综合评分</view>
+                        </view>
+                        <view class="shop-rate__score">
+                            <view class="shop-rate__score-item">
+                                <view class="shop-rate__score-item-label">商家</view>
+                                <star-rate wx:if="{{info.quality>0}}" score="{{info.quality}}" id="star-rate">
+                                </star-rate>
+                                <view class="shop-rate__score-item-num">{{info.quality}}</view>
+                            </view>
+                            <view class="shop-rate__score-item">
+                                <view class="shop-rate__score-item-label">配送</view>
+                                <star-rate wx:if="{{info.service>0}}" score="{{info.service}}" id="star2">
+                                </star-rate>
+                                <view class="shop-rate__score-item-num">{{info.service}}</view>
+                            </view>
+
+                        </view>
+                    </view>
+                    <view class="shop-review">
+                        <view class="review-count weui-flex">
+                            <view class="tab {{_active==1?'active':''}}" bindtap="menuRate" data-rate="1">
+                                全部({{review.review_count.all}})
+                            </view>
+                            <view class="tab {{_active==2?'active':''}}" bindtap="menuRate" data-rate="2">
+                                满意({{review.review_count.good}})
+                            </view>
+                            <view data-rate="3" class="tab {{_active==3?'active':''}}" bindtap="menuRate">
+                                不满意({{review.review_count.bad}})
+                            </view>
+                            <view data-rate="4" class="tab {{_active==4?'active':''}}" bindtap="menuRate">
+                                中评({{review.review_count.normal}})
+                            </view>
+                        </view>
+                        <view class="review-list">
+
+                            <view wx:for="{{_active==1?review.list:_active==2?goodRate:_active==3?badRate:normalRate}}"
+                                  wx:key="{{item.order_id}}" class="review-item" data-goods-id="{{item.order_id}}"
+                                  wx:if="item.length>0">
+                                <view class="">
+                                    <image class="review-item__head-img"
+                                           src="{{item.head_pic || '/images/default-image.png'}}"/>
+                                </view>
+                                <view class="review-item__content">
+                                    <view class="review-item__hd">
+                                        <view class="review-item__add-time">{{item.timeFormat}}</view>
+                                        <view class="review-item__nick">{{item.nick}}</view>
+                                        <view class="weui-flex wrapper" data-score="{{item.service}}">
+                                            <!--<template is="star-rate" data="{{value: item.quality, mini: true}}"></template>-->
+                                            <view class="weui-flex"  wx:if="{{item.quality>0}}">
+                                                <view class="shop-rate__score-item-label">商品:</view>
+                                                <star-rate wx:if="{{_active==3}}" score="{{item.quality}}">
+                                                </star-rate>
+                                                <star-rate wx:else score="{{item.quality}}" id="star-rate5">
+                                                </star-rate>
+                                            </view>
+                                            <view  class="weui-flex"  wx:if="{{item.pack>0}}">
+                                                <view class="shop-rate__score-item-label">包装:</view>
+                                                <star-rate wx:if="{{_active==3}}" score="{{item.pack}}">
+                                                </star-rate>
+                                                <star-rate wx:else score="{{item.pack}}" id="star-rate3">
+                                                </star-rate>
+                                            </view>
+                                            <view  class="weui-flex"  wx:if="{{item.taste>0}}">
+                                                <view class="shop-rate__score-item-label">口味:</view>
+                                                <star-rate wx:if="{{_active==3}}" score="{{item.taste}}">
+                                            </star-rate>
+                                                <star-rate wx:else score="{{item.taste}}" id="star-rate4">
+                                                </star-rate>
+                                            </view>
+                                            <view  class="weui-flex" wx:if="{{item.service>0}}">
+                                                <view class="shop-rate__score-item-label">服务:</view>
+                                                <star-rate wx:if="{{_active==3}}" score="{{item.service}}">
+                                                </star-rate>
+
+                                                <star-rate wx:else score="{{item.service}}" >
+                                                </star-rate>
+                                            </view>
+
+                                            <!--<star-rate wx:else score="{{item.service}}">-->
+                                            <!--</star-rate>-->
+                                        </view>
+                                        <view class="review-item__reach-time text-small "
+                                              wx:if="{{item.service_content&&!item.content}}">{{item.service_content}}
+                                        </view>
+
+                                        <view class="review-item__bd  text-small"
+                                              wx:elif="{{!item.service_content&&item.content}}">
+                                            {{item.content}}
+                                        </view>
+                                        <view class="review-item__reach-time text-small grey-color" wx:else>默认做出好评
+                                        </view>
+                                    </view>
+                                </view>
+                            </view>
+                        </view>
+
+                    </view>
+                    <!--<template is="load-more" data="{{loading: review.loading, hasMore: review.hasMore}}"></template>-->
+                    <load-more loading="{{review.loading}}" hasMore="{{review.hasMore}}">
+                    </load-more>
+                </scroll-view>
+            </swiper-item>
+            <swiper-item class="weui-tab__content menu-tab">
+                <block wx:if="{{info.promotion.length > 0}}">
+                    <view class="weui-cells__title">商家活动</view>
+                    <view class="weui-cells weui-cells_after-title info__promotion-list">
+                        <view wx:for="{{info.promotion}}" wx:key="{{index}}" class="weui-cell info__promotion-item">
+                            <view class="weui-cell__hd">
+                                <image src="{{item.pic_url}}" class="info__promotion-img"/>
+                            </view>
+                            <view class="weui-cell__bd">{{item.info}}</view>
+                        </view>
+                    </view>
+                </block>
+                <view class="weui-cells__title">商家信息</view>
+                <view class="weui-cells weui-cells_after-title">
+                    <view data-phone="{{info.phone}}" bindtap="onPhoneTap" class="weui-cell weui-cell_access info-item">
+                        <view class="weui-cell__hd weui-cell__hd_info">
+                            商家电话
+                        </view>
+                        <view class="weui-cell__bd ">{{info.phone}}</view>
+                        <view class="weui-cell__ft">
+                            <image class="info__phone-icon" src="/images/chat_phone_normal.png"/>
+                        </view>
+                    </view>
+                    <view wx:if="{{info.notice}}" class="weui-cell">
+                        <view class="weui-cell__hd weui-cell__hd_info">
+                            商家公告
+                        </view>
+                        <view class="weui-cell__bd">{{info.notice}}</view>
+                    </view>
+                    <view class="weui-cell">
+                        <view class="weui-cell__hd weui-cell__hd_info">
+                            商家地址
+                        </view>
+                        <view class="weui-cell__bd">{{info.address}}</view>
+                    </view>
+                    <view class="weui-cell">
+                        <view class="weui-cell__hd weui-cell__hd_info">
+                            营业时间
+                        </view>
+                        <view class="weui-cell__bd">{{info.sell_time}}</view>
+                    </view>
+                    <view class="weui-cell">
+                        <view class="weui-cell__hd weui-cell__hd_info">
+                            配送服务
+                        </view>
+                        <view class="weui-cell__bd">爱跑腿</view>
+                    </view>
+                </view>
+            </swiper-item>
+        </swiper>
+    </view>
+</view>
+</view>
+<template wx:if="{{showCart}}" is="cart-box" data="{{...order}}"/>
+<template is="sub-goods" wx:if="{{showSubGoods}}" data="{{...activeSubGoods}}"/>

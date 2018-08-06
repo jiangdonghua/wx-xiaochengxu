@@ -1,0 +1,5 @@
+
+    <view class="star-rate" data="1">
+        <view wx:for="{{itemClasses}}" wx:key="{{item}}" class="item {{item}}">
+        </view>
+    </view>

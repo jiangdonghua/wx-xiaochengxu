@@ -1,0 +1,10 @@
+<!--pages/index/templates/category/category.wxml-->
+<import src="../load-more/load-more.wxml" />
+<import src="../shop/shop.wxml" />
+
+<view class="shop-list">
+<template is="shop" wx:for="{{list}}" wx:key="{{seller_id}}" data="{{...item}}">
+</template>
+</view>
+<template  is="load-more" data="{{loading: loading, hasMore: hasMore, noMoreLabel: '更多商家接入中, 敬请期待'}}">
+</template>

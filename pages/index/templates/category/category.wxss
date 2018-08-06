@@ -1,0 +1,4 @@
+/* pages/index/templates/category/category.wxss */
+page{
+    background-color: #fff;
+}

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "搜索",
+  "usingComponents": {
+    "shop":"../../components/shop/shop",
+    "load-more":"../../components/load-more/load-more"
+  }
+}

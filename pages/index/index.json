@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "popup": "../../components/popup/popup",
+    "star-rate":"../../../components/star-rate/star-rate"
+  }
+}

@@ -1,0 +1,4 @@
+/* components/load-more/load-more.wxss */
+.weui-loadmore__tips_in-line {
+    background-color: #f8f8f8;
+}

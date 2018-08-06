@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "star-rate":"../../components/star-rate/star-rate",
+    "load-more":"../../components/load-more/load-more"
+  }
+}
